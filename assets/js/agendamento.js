@@ -1,7 +1,15 @@
-/*
- * Edite apenas CONFIG para adaptar horários, serviços e contato.
- * Os horários são sugestões; sem banco de dados, a equipe confirma pelo WhatsApp.
- */
+/* Os horários são preferências; sem banco de dados, a equipe confirma pelo WhatsApp. */
+const DEFAULT_SERVICES = [
+  { id: 'coloracao', nome: 'Coloração', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+  { id: 'mechas-loiros', nome: 'Mechas e loiros', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+  { id: 'morena-iluminada', nome: 'Morena iluminada', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+  { id: 'corte', nome: 'Corte', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+  { id: 'tratamento', nome: 'Tratamento capilar', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+  { id: 'retoque-raiz', nome: 'Retoque de raiz', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+  { id: 'mega-hair', nome: 'Mega Hair', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+  { id: 'penteado', nome: 'Penteado', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+  { id: 'maquiagem', nome: 'Maquiagem', preco: null, tipoPreco: 'sobConsulta', duracaoMin: null },
+];
 const CONFIG = {
   empresa: 'Studio JL Beauty&Co.',
   whatsapp: '5562998634371',
@@ -20,10 +28,8 @@ const CONFIG = {
   },
   diasBloqueados: [],
   horariosBloqueados: {},
-  // Preencha após confirmar preço e duração. Exemplo:
-  // { id: 'corte', nome: 'Corte', preco: 80, tipoPreco: 'fixo', duracaoMin: 60 }
-  // tipoPreco: 'fixo', 'aPartirDe' ou 'sobConsulta' (preco: null).
-  servicos: [],
+  // Atualize preços e durações quando o salão confirmar os dados.
+  servicos: DEFAULT_SERVICES,
 };
 
 (() => {
@@ -36,18 +42,16 @@ const CONFIG = {
   const calendarDays = $('calendar-days');
   const slotsContainer = $('time-slots');
   const feedback = $('booking-feedback');
-  const serviceRequest = $('service-request');
   const nameInput = $('client-name');
   const phoneInput = $('client-phone');
   const noteInput = $('client-note');
   const sendLink = $('send-whatsapp');
   const copyButton = $('copy-message');
   const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+  const storageKey = 'studio-jl-booking-v2';
   const state = { step: 0, selected: new Set(), date: null, time: null };
-  const hasCatalog = () => CONFIG.servicos.length > 0;
-  const hasService = () => hasCatalog() ? state.selected.size > 0 : serviceRequest.value.trim().length >= 3;
-  document.body.classList.toggle('booking-freeform-mode', !hasCatalog());
-  document.querySelector('.mobile-summary').hidden = !hasCatalog();
+  const hasService = () => state.selected.size > 0;
+  const hasDuration = () => hasService() && selectedServices().every(service => Number.isFinite(service.duracaoMin) && service.duracaoMin > 0);
 
   const zonedNow = () => {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -95,7 +99,7 @@ const CONFIG = {
     return [hours ? `${hours}h` : '', rest ? `${rest}min` : ''].filter(Boolean).join('') || '0min';
   };
   const selectedServices = () => CONFIG.servicos.filter(service => state.selected.has(service.id));
-  const totalDuration = () => selectedServices().reduce((total, service) => total + service.duracaoMin, 0);
+  const totalDuration = () => selectedServices().reduce((total, service) => total + (service.duracaoMin || 0), 0);
   const servicePrice = service => service.preco == null
     ? 'Sob consulta'
     : service.tipoPreco === 'aPartirDe'
@@ -130,7 +134,7 @@ const CONFIG = {
       const start = toMinutes(period.inicio);
       const end = toMinutes(period.fim);
       // Sem duração confirmada, cada início é apenas uma preferência, nunca uma vaga garantida.
-      const requiredMinutes = hasCatalog() ? totalDuration() : CONFIG.intervaloSlotMin;
+      const requiredMinutes = hasDuration() ? totalDuration() : CONFIG.intervaloSlotMin;
       for (let minute = start; minute + requiredMinutes <= end; minute += CONFIG.intervaloSlotMin) {
         if (distance * 1440 + minute - now.minutes < minNotice) continue;
         if (blocked.some(block => minute < block + CONFIG.intervaloSlotMin && minute + requiredMinutes > block)) continue;
@@ -145,9 +149,42 @@ const CONFIG = {
     return { year, month };
   })();
 
+  const maxUnlockedStep = () => !hasService() ? 0
+    : !isSelectableDay(state.date) ? 1
+      : !availableSlots(state.date).includes(state.time) ? 2 : 3;
+
+  function saveDraft() {
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify({
+        step: state.step,
+        selected: [...state.selected],
+        date: state.date,
+        time: state.time,
+        name: nameInput.value,
+        phone: phoneInput.value,
+        note: noteInput.value,
+      }));
+    } catch { /* O formulário continua funcional se o navegador bloquear o armazenamento. */ }
+  }
+
+  function restoreDraft() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
+      if (!saved || typeof saved !== 'object') return;
+      const validIds = new Set(CONFIG.servicos.map(service => service.id));
+      state.selected = new Set(Array.isArray(saved.selected) ? saved.selected.filter(id => validIds.has(id)) : []);
+      state.date = typeof saved.date === 'string' && isSelectableDay(saved.date) ? saved.date : null;
+      state.time = typeof saved.time === 'string' && availableSlots(state.date).includes(saved.time) ? saved.time : null;
+      if (state.date) [monthState.year, monthState.month] = dateParts(state.date);
+      nameInput.value = typeof saved.name === 'string' ? saved.name.slice(0, 80) : '';
+      phoneInput.value = typeof saved.phone === 'string' ? formatPhone(saved.phone) : '';
+      noteInput.value = typeof saved.note === 'string' ? saved.note.slice(0, 300) : '';
+      state.step = Number.isInteger(saved.step) ? Math.max(0, Math.min(saved.step, maxUnlockedStep())) : 0;
+    } catch { /* Um rascunho inválido não impede uma nova solicitação. */ }
+  }
+
   function renderServices() {
     serviceList.replaceChildren();
-    $('service-empty').hidden = hasCatalog();
     for (const service of CONFIG.servicos) {
       const label = document.createElement('label');
       label.className = 'service-option';
@@ -159,9 +196,12 @@ const CONFIG = {
       copy.className = 'service-option-copy';
       const title = document.createElement('strong');
       title.textContent = service.nome;
-      const duration = document.createElement('small');
-      duration.textContent = `Duração estimada: ${durationText(service.duracaoMin)}`;
-      copy.append(title, duration);
+      copy.append(title);
+      if (Number.isFinite(service.duracaoMin) && service.duracaoMin > 0) {
+        const duration = document.createElement('small');
+        duration.textContent = `Duração estimada: ${durationText(service.duracaoMin)}`;
+        copy.append(duration);
+      }
       const side = document.createElement('span');
       side.className = 'service-option-side';
       const price = document.createElement('span');
@@ -208,7 +248,7 @@ const CONFIG = {
   function renderSlots() {
     slotsContainer.replaceChildren();
     $('selected-day-label').textContent = state.date
-      ? `Data escolhida: ${prettyDate(state.date)}. ${hasCatalog() ? 'Horários sugeridos conforme a duração estimada.' : 'Escolha um horário de preferência; a equipe confirma a disponibilidade e a duração.'}`
+      ? `Data escolhida: ${prettyDate(state.date)}. ${hasDuration() ? 'Horários sugeridos conforme a duração estimada.' : 'Escolha um horário de preferência; a equipe confirma a disponibilidade e a duração.'}`
       : '';
     const slots = availableSlots(state.date);
     $('no-slots').hidden = slots.length > 0;
@@ -227,7 +267,7 @@ const CONFIG = {
     const services = selectedServices();
     const summary = $('summary-services');
     summary.replaceChildren();
-    if (hasCatalog() && services.length) {
+    if (services.length) {
       const list = document.createElement('ul');
       for (const service of services) {
         const item = document.createElement('li');
@@ -241,17 +281,17 @@ const CONFIG = {
       summary.append(list);
     } else {
       const empty = document.createElement('p');
-      empty.textContent = serviceRequest.value.trim() || 'Informe o serviço desejado para começar.';
+      empty.textContent = 'Escolha seus serviços para começar.';
       summary.append(empty);
     }
     $('summary-date').textContent = state.date ? prettyDate(state.date) : 'A escolher';
     $('summary-time').textContent = state.time || 'A escolher';
-    $('summary-duration').textContent = hasCatalog() && services.length ? durationText(totalDuration()) : 'A confirmar';
+    $('summary-duration').textContent = hasDuration() ? durationText(totalDuration()) : 'A confirmar';
     $('summary-price-row').hidden = !totalPrice();
     $('summary-price').textContent = totalPrice();
-    $('mobile-summary-text').textContent = hasCatalog()
-      ? services.length ? `${services.length} ${services.length === 1 ? 'serviço' : 'serviços'} · ${durationText(totalDuration())}` : 'Escolha os serviços'
-      : hasService() ? 'Solicitação em andamento' : 'Informe o serviço desejado';
+    $('mobile-summary-text').textContent = services.length
+      ? `${services.length} ${services.length === 1 ? 'serviço' : 'serviços'}${hasDuration() ? ` · ${durationText(totalDuration())}` : ''}`
+      : 'Escolha os serviços';
     $('mobile-summary-value').textContent = totalPrice();
   }
 
@@ -262,9 +302,9 @@ const CONFIG = {
     heading.textContent = 'Sua escolha';
     review.append(heading);
     const rows = [
-      hasCatalog() ? selectedServices().map(service => service.nome).join(' · ') : serviceRequest.value.trim(),
+      selectedServices().map(service => service.nome).join(' · '),
       state.date ? prettyDate(state.date) : '',
-      state.time ? `${state.time}${hasCatalog() ? ` · duração estimada de ${durationText(totalDuration())}` : ' · horário de preferência'}` : '',
+      state.time ? `${state.time}${hasDuration() ? ` · duração estimada de ${durationText(totalDuration())}` : ' · horário de preferência'}` : '',
       totalPrice() ? `Valor: ${totalPrice()}` : 'Valor e duração a confirmar',
     ];
     for (const text of rows.filter(Boolean)) {
@@ -292,10 +332,10 @@ const CONFIG = {
       `👤 Nome: ${nameInput.value.trim()}`,
       `📱 Telefone: ${phoneInput.value.trim()}`,
       `📅 Data: ${prettyDate(state.date)}`,
-      `🕐 Horário de preferência: ${state.time}${hasCatalog() ? ` (duração estimada: ${durationText(totalDuration())})` : ''}`,
+      `🕐 Horário de preferência: ${state.time}${hasDuration() ? ` (duração estimada: ${durationText(totalDuration())})` : ''}`,
       '',
-      '✂️ Serviço desejado:',
-      ...(hasCatalog() ? selectedServices().map(service => `• ${service.nome}: ${servicePrice(service)}`) : [serviceRequest.value.trim()]),
+      '✂️ Serviços desejados:',
+      ...selectedServices().map(service => `• ${service.nome}: ${servicePrice(service)}`),
     ];
     if (totalPrice()) lines.push('', `💰 Total indicado: ${totalPrice()}`);
     if (noteInput.value.trim()) lines.push('', `📝 Observação: ${noteInput.value.trim()}`);
@@ -304,7 +344,7 @@ const CONFIG = {
   }
 
   function validBooking() {
-    return hasService() && (!hasCatalog() || selectedServices().every(service => Number.isFinite(service.duracaoMin) && service.duracaoMin > 0))
+    return hasService()
       && isSelectableDay(state.date) && availableSlots(state.date).includes(state.time)
       && validName() && validPhone();
   }
@@ -328,11 +368,13 @@ const CONFIG = {
     renderSummary();
     renderReview();
     updateSendLink();
+    state.step = Math.min(state.step, maxUnlockedStep());
     panels.forEach((panel, index) => { panel.hidden = index !== state.step; });
     indicators.forEach((indicator, index) => {
       if (index === state.step) indicator.setAttribute('aria-current', 'step');
       else indicator.removeAttribute('aria-current');
       indicator.classList.toggle('is-complete', index < state.step);
+      indicator.querySelector('button').disabled = index > maxUnlockedStep();
     });
     panels.forEach((panel, index) => {
       const button = panel.querySelector('[data-next]');
@@ -340,6 +382,7 @@ const CONFIG = {
         || index === 1 && !state.date
         || index === 2 && !state.time;
     });
+    saveDraft();
   }
 
   function changeStep(next) {
@@ -354,17 +397,16 @@ const CONFIG = {
     });
   }
 
-  serviceRequest.addEventListener('input', () => {
-    setFeedback('');
-    render();
-  });
+  document.querySelectorAll('[data-step-target]').forEach(button => button.addEventListener('click', () => {
+    if (!button.disabled) changeStep(Number(button.dataset.stepTarget));
+  }));
   serviceList.addEventListener('change', event => {
     if (!event.target.matches('input[type="checkbox"]')) return;
     if (event.target.checked) state.selected.add(event.target.value);
     else state.selected.delete(event.target.value);
     const hadTime = Boolean(state.time);
     if (state.time && !availableSlots(state.date).includes(state.time)) state.time = null;
-    setFeedback(hadTime && !state.time ? 'A duração mudou. Escolha outro horário.' : '');
+    setFeedback(hadTime && !state.time ? 'Os serviços mudaram. Escolha outro horário.' : '');
     render();
   });
   calendarDays.addEventListener('click', event => {
@@ -409,7 +451,7 @@ const CONFIG = {
     slotsContainer.querySelector(`button[data-time="${state.time}"]`).focus({ preventScroll: true });
   });
   document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => {
-    if (state.step === 0 && !hasService()) return setFeedback(hasCatalog() ? 'Selecione ao menos um serviço.' : 'Descreva o serviço desejado.');
+    if (state.step === 0 && !hasService()) return setFeedback('Selecione ao menos um serviço.');
     if (state.step === 1 && !state.date) return setFeedback('Escolha uma data.');
     if (state.step === 2 && !state.time) return setFeedback('Escolha um horário.');
     changeStep(state.step + 1);
@@ -418,9 +460,10 @@ const CONFIG = {
   phoneInput.addEventListener('input', () => {
     phoneInput.value = formatPhone(phoneInput.value);
     updateSendLink();
+    saveDraft();
   });
-  nameInput.addEventListener('input', updateSendLink);
-  noteInput.addEventListener('input', updateSendLink);
+  nameInput.addEventListener('input', () => { updateSendLink(); saveDraft(); });
+  noteInput.addEventListener('input', () => { updateSendLink(); saveDraft(); });
   copyButton.addEventListener('click', async () => {
     if (!validBooking()) return;
     try {
@@ -440,10 +483,11 @@ const CONFIG = {
   $('booking-year').textContent = new Date().getFullYear();
   if (CONFIG.servicos.length) {
     const ids = CONFIG.servicos.map(service => service.id);
-    if (new Set(ids).size !== ids.length || CONFIG.servicos.some(service => !Number.isFinite(service.duracaoMin) || service.duracaoMin <= 0)) {
-      throw new Error('CONFIG.servicos: IDs únicos e duração positiva são obrigatórios.');
+    if (new Set(ids).size !== ids.length || CONFIG.servicos.some(service => service.duracaoMin != null && (!Number.isFinite(service.duracaoMin) || service.duracaoMin <= 0))) {
+      throw new Error('CONFIG.servicos: IDs únicos e duração positiva quando informada são obrigatórios.');
     }
   }
+  restoreDraft();
   renderServices();
   render();
 })();

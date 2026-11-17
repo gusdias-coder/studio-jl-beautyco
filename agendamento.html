@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/agendamento.css">
-  <script src="assets/js/agendamento.js" defer></script>
+  <link rel="stylesheet" href="assets/css/agendamento.css?v=20261117-2">
+  <script src="assets/js/agendamento.js?v=20261117-2" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -26,28 +26,23 @@
     <div class="booking-intro">
       <p class="eyebrow">Studio JL Beauty&Co. · Goiânia</p>
       <h1>Um horário<br>para <em>você.</em></h1>
-      <p>Conte o que você deseja e indique quando gostaria de vir. A equipe confirma a disponibilidade pelo WhatsApp.</p>
+      <p>Selecione os serviços e indique quando gostaria de vir. A equipe confirma a disponibilidade pelo WhatsApp.</p>
     </div>
 
     <div class="booking-layout">
       <div class="booking-flow">
         <ol class="booking-steps" aria-label="Etapas da solicitação">
-          <li data-step-indicator="0" aria-current="step"><span>01</span> Serviços</li>
-          <li data-step-indicator="1"><span>02</span> Data</li>
-          <li data-step-indicator="2"><span>03</span> Horário</li>
-          <li data-step-indicator="3"><span>04</span> Seus dados</li>
+          <li data-step-indicator="0" aria-current="step"><button type="button" data-step-target="0" aria-label="Etapa 1: Serviços"><span>01</span> Serviços</button></li>
+          <li data-step-indicator="1"><button type="button" data-step-target="1" aria-label="Etapa 2: Data" disabled><span>02</span> Data</button></li>
+          <li data-step-indicator="2"><button type="button" data-step-target="2" aria-label="Etapa 3: Horário" disabled><span>03</span> Horário</button></li>
+          <li data-step-indicator="3"><button type="button" data-step-target="3" aria-label="Etapa 4: Seus dados" disabled><span>04</span> Seus dados</button></li>
         </ol>
 
         <section class="booking-panel" data-step="0" aria-labelledby="step-services">
           <p class="booking-kicker">Etapa 01 / 04</p>
           <h2 id="step-services" tabindex="-1">O que vamos fazer?</h2>
-          <p class="booking-help">Conte qual serviço você procura. A equipe confirma os detalhes e valores após a avaliação.</p>
+          <p class="booking-help">Selecione um ou mais serviços. A equipe confirma a duração e os valores após a avaliação.</p>
           <div id="service-list" class="service-options"></div>
-          <div id="service-empty" class="booking-freeform" hidden>
-            <label for="service-request">Serviço desejado <span aria-hidden="true">*</span></label>
-            <textarea id="service-request" rows="3" maxlength="300" placeholder="Ex.: corte, coloração, mechas ou tratamento capilar" required></textarea>
-            <p>Você pode descrever mais de um serviço. A duração e o valor serão confirmados pela equipe.</p>
-          </div>
           <div class="booking-actions"><button class="booking-next" type="button" data-next>Escolher data <span aria-hidden="true">→</span></button></div>
         </section>
 
@@ -79,7 +74,7 @@
         <section class="booking-panel" data-step="3" aria-labelledby="step-details" hidden>
           <p class="booking-kicker">Etapa 04 / 04</p>
           <h2 id="step-details" tabindex="-1">Para confirmar com você.</h2>
-          <p class="booking-help">Confira o resumo. Seus dados serão incluídos na mensagem enviada ao WhatsApp.</p>
+          <p class="booking-help">Confira o resumo. Seus dados ficam salvos nesta aba enquanto você navega e serão incluídos na mensagem para o WhatsApp.</p>
           <div class="booking-fields">
             <label for="client-name">Nome completo <span aria-hidden="true">*</span></label>
             <input id="client-name" name="name" type="text" autocomplete="name" maxlength="80" required>

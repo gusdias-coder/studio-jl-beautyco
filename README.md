@@ -12,12 +12,14 @@ Abra index.html no navegador para visualizar, ou sirva esta pasta em um servidor
 
 ## Composição
 
-Abertura com fotografia e agendamento; três grupos de serviços; galeria com três trabalhos; apresentação curta do studio; contato com endereço, horários e rota no Google Maps. Há dois links de WhatsApp, com mensagem preenchida no próprio HTML. Eles funcionam mesmo sem JavaScript. O menu permanece acessível sem JavaScript.
+Abertura com fotografia e agendamento; três grupos de serviços; galeria com três trabalhos; apresentação curta do studio; contato com endereço, horários e rota no Google Maps. Os links de WhatsApp têm mensagem preenchida no próprio HTML e funcionam mesmo sem JavaScript. O menu permanece acessível sem JavaScript.
+
+Cada seção usa um tom discreto de fundo, em faixas de largura total, para orientar a leitura sem pesar o visual. Os fundos e divisórias ficam em `assets/css/style.css`.
 
 ## Reaproveitar para outro salão
 
 1. Troque a marca, serviços e textos no HTML.
-2. Substitua telefone nos dois links wa.me, no link tel, no texto visível e no JSON-LD. O JavaScript não define telefone nem redireciona links.
+2. Substitua telefone em todos os links wa.me, no link tel, no texto visível e no JSON-LD. O JavaScript não define telefone nem redireciona links.
 3. Troque cidade, endereço, horários e os destinos do Instagram e Google Maps.
 4. Substitua as quatro fotografias e suas descrições. As imagens desta versão pertencem ao material do Studio JL e não devem apresentar os trabalhos de outro negócio.
 5. Atualize title, description, canonical, Open Graph e JSON-LD para o domínio e os dados do novo negócio.
@@ -38,3 +40,4 @@ A pasta do site contém os arquivos que devem ir à raiz do repositório gusdias
 ## Verificações
 
 Layout e imagens verificados em 1440, 390 e 320 pixels, sem rolagem horizontal. Menu móvel verificado por abertura e Escape. Antes de adaptar para outro negócio, confira novamente os links de contato, descrições, serviços e metadados.
+

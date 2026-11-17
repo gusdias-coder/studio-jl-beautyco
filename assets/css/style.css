@@ -119,3 +119,26 @@
 .site-footer{background:var(--bg)}
 @media(max-width:1000px){.contact-layout{gap:48px}}
 @media(max-width:700px){.contact-layout{grid-template-columns:1fr;gap:44px}}
+
+@media (max-width: 700px) {
+  .hero-copy, .section-head, .service, .services-section .note,
+  .about, .contact-layout, .site-footer { text-align: center; }
+
+  .hero-copy h1 { font-size: clamp(58px, 15vw, 96px); }
+  .hero-copy .small-line { display: none; }
+
+  .hero-copy .lead, .hero-explore, .section-description,
+  .service p, .about-copy, .contact-invite > p:not(.eyebrow) {
+    margin-inline: auto;
+  }
+
+  .service { padding-inline: 0; }
+  .service-number { position: static; }
+  .service p { max-width: 32ch; }
+  .gallery-section .section-head > .text-link { margin-top: 16px; }
+  .contact-details .hours { max-width: 340px; margin-inline: auto; }
+  .contact-details .hours dt { text-align: start; }
+  .contact-details .hours dd { text-align: end; }
+  .site-footer .wrap { justify-content: center; }
+  .nav a { justify-content: center; }
+}

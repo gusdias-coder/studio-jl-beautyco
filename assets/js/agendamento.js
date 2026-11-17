@@ -209,7 +209,6 @@ const CONFIG = {
       const check = document.createElement('span');
       check.className = 'service-check';
       check.setAttribute('aria-hidden', 'true');
-      check.textContent = '✓';
       side.append(price, check);
       label.append(input, copy, side);
       serviceList.append(label);

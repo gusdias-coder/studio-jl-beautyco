@@ -28,8 +28,9 @@
 .service-option-copy strong{font:500 24px/1.1 var(--display)}
 .service-option-copy small{font-size:11px;color:var(--muted)}
 .service-option-side{display:grid;justify-items:end;gap:5px;text-align:right;white-space:nowrap;font-size:11px}
-.service-check{width:18px;height:18px;border:1px solid var(--accent);display:grid;place-items:center;color:transparent;font-size:13px;line-height:1}
-.service-option input:checked~.service-option-side .service-check{background:var(--accent);color:white}
+.service-check{width:18px;height:18px;border:1px solid var(--accent);display:grid;place-items:center}
+.service-option input:checked~.service-option-side .service-check{background:var(--accent)}
+.service-option input:checked~.service-option-side .service-check::after{content:"";width:8px;height:4px;border-left:2px solid white;border-bottom:2px solid white;transform:translateY(-1px) rotate(-45deg)}
 .booking-actions{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:32px;border-top:1px solid var(--line);padding-top:24px}
 .booking-actions .booking-next:first-child{margin-left:auto}
 .booking-next{min-height:48px;display:inline-flex;align-items:center;justify-content:space-between;gap:24px;padding:12px 20px;background:var(--ink);border:1px solid var(--ink);color:white;text-decoration:none;font:600 11px var(--text);cursor:pointer}
@@ -86,3 +87,19 @@
 @media(max-width:390px){.booking-back{font-size:10px}.booking-header .brand{font-size:22px}.service-option-copy strong{font-size:20px}.calendar-days button{min-height:36px}.booking-actions-final>div{display:grid;justify-items:end;gap:4px}}
 @media(max-width:700px){.booking-steps li button{font-size:9px;white-space:normal;line-height:1.2}.booking-steps li span{display:block;margin-bottom:4px}}
 @media(prefers-reduced-motion:reduce){.service-option{transition:none}}
+
+.booking-back, .booking-previous, .booking-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.calendar-nav { display: inline-grid; place-items: center; padding: 0; }
+.booking-back svg, .booking-previous svg, .booking-next svg { flex: none; }
+
+@media (max-width: 700px) {
+  .booking-intro, .booking-panel > h2, .booking-panel > .booking-kicker,
+  .booking-panel > .booking-help { text-align: center; }
+  .booking-intro, .booking-intro > p:last-child, .booking-help {
+    margin-inline: auto;
+  }
+}

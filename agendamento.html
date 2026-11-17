@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f0e9">
+  <title>Solicitar agendamento | Studio JL Beauty&Co.</title>
+  <meta name="description" content="Escolha serviços, data e horário de preferência para solicitar um agendamento no Studio JL Beauty&Co. A equipe confirma pelo WhatsApp.">
+  <link rel="canonical" href="https://gusdias-coder.github.io/studio-jl-beautyco/agendamento.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/agendamento.css">
+  <script src="assets/js/agendamento.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <header class="booking-header">
+    <div class="wrap booking-header-inner">
+      <a class="brand" href="index.html" aria-label="Studio JL Beauty&Co., voltar ao site">STUDIO JL<span>BEAUTY &amp; CO.</span></a>
+      <a class="booking-back" href="index.html">← Voltar ao site</a>
+    </div>
+  </header>
+  <main id="conteudo" class="booking-main wrap">
+    <div class="booking-intro">
+      <p class="eyebrow">Studio JL Beauty&Co. · Goiânia</p>
+      <h1>Um horário<br>para <em>você.</em></h1>
+      <p>Conte o que você deseja e indique quando gostaria de vir. A equipe confirma a disponibilidade pelo WhatsApp.</p>
+    </div>
+
+    <div class="booking-layout">
+      <div class="booking-flow">
+        <ol class="booking-steps" aria-label="Etapas da solicitação">
+          <li data-step-indicator="0" aria-current="step"><span>01</span> Serviços</li>
+          <li data-step-indicator="1"><span>02</span> Data</li>
+          <li data-step-indicator="2"><span>03</span> Horário</li>
+          <li data-step-indicator="3"><span>04</span> Seus dados</li>
+        </ol>
+
+        <section class="booking-panel" data-step="0" aria-labelledby="step-services">
+          <p class="booking-kicker">Etapa 01 / 04</p>
+          <h2 id="step-services" tabindex="-1">O que vamos fazer?</h2>
+          <p class="booking-help">Conte qual serviço você procura. A equipe confirma os detalhes e valores após a avaliação.</p>
+          <div id="service-list" class="service-options"></div>
+          <div id="service-empty" class="booking-freeform" hidden>
+            <label for="service-request">Serviço desejado <span aria-hidden="true">*</span></label>
+            <textarea id="service-request" rows="3" maxlength="300" placeholder="Ex.: corte, coloração, mechas ou tratamento capilar" required></textarea>
+            <p>Você pode descrever mais de um serviço. A duração e o valor serão confirmados pela equipe.</p>
+          </div>
+          <div class="booking-actions"><button class="booking-next" type="button" data-next>Escolher data <span aria-hidden="true">→</span></button></div>
+        </section>
+
+        <section class="booking-panel" data-step="1" aria-labelledby="step-date" hidden>
+          <p class="booking-kicker">Etapa 02 / 04</p>
+          <h2 id="step-date" tabindex="-1">Qual dia funciona para você?</h2>
+          <p class="booking-help">Atendimentos de terça a sábado, das 9h às 18h. Segunda-feira é reservada para receber solicitações.</p>
+          <div class="calendar" aria-label="Escolha uma data">
+            <div class="calendar-header">
+              <button id="previous-month" class="calendar-nav" type="button" aria-label="Mês anterior">←</button>
+              <h3 id="calendar-month" aria-live="polite"></h3>
+              <button id="next-month" class="calendar-nav" type="button" aria-label="Próximo mês">→</button>
+            </div>
+            <div class="calendar-weekdays" aria-hidden="true"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
+            <div id="calendar-days" class="calendar-days" role="group" aria-label="Dias do mês"></div>
+          </div>
+          <div class="booking-actions"><button class="booking-previous" type="button" data-previous>← Voltar</button><button class="booking-next" type="button" data-next>Escolher horário <span aria-hidden="true">→</span></button></div>
+        </section>
+
+        <section class="booking-panel" data-step="2" aria-labelledby="step-time" hidden>
+          <p class="booking-kicker">Etapa 03 / 04</p>
+          <h2 id="step-time" tabindex="-1">Qual horário prefere?</h2>
+          <p id="selected-day-label" class="booking-help"></p>
+          <div id="time-slots" class="time-slots" role="group" aria-label="Horários de preferência"></div>
+          <p id="no-slots" class="booking-empty" hidden>Não há horários para selecionar nesta data. Tente outro dia.</p>
+          <div class="booking-actions"><button class="booking-previous" type="button" data-previous>← Voltar</button><button class="booking-next" type="button" data-next>Informar meus dados <span aria-hidden="true">→</span></button></div>
+        </section>
+
+        <section class="booking-panel" data-step="3" aria-labelledby="step-details" hidden>
+          <p class="booking-kicker">Etapa 04 / 04</p>
+          <h2 id="step-details" tabindex="-1">Para confirmar com você.</h2>
+          <p class="booking-help">Confira o resumo. Seus dados serão incluídos na mensagem enviada ao WhatsApp.</p>
+          <div class="booking-fields">
+            <label for="client-name">Nome completo <span aria-hidden="true">*</span></label>
+            <input id="client-name" name="name" type="text" autocomplete="name" maxlength="80" required>
+            <label for="client-phone">Celular com DDD <span aria-hidden="true">*</span></label>
+            <input id="client-phone" name="tel" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="15" placeholder="(00) 00000-0000" required>
+            <label for="client-note">Observação <span class="optional">(opcional)</span></label>
+            <textarea id="client-note" name="note" rows="3" maxlength="300" placeholder="Conte algo que devemos saber sobre seu cabelo ou o atendimento."></textarea>
+          </div>
+          <div id="final-review" class="final-review"></div>
+          <p class="booking-disclaimer">Esta é uma solicitação. O horário, a duração e o valor só estarão confirmados após a resposta da equipe.</p>
+          <div class="booking-actions booking-actions-final"><button class="booking-previous" type="button" data-previous>← Voltar</button><div><a id="send-whatsapp" class="booking-next" target="_blank" rel="noopener noreferrer" aria-disabled="true">Enviar pelo WhatsApp <span aria-hidden="true">↗</span></a><button id="copy-message" class="booking-copy" type="button" disabled>Copiar mensagem</button></div></div>
+        </section>
+
+        <p id="booking-feedback" class="booking-feedback" role="status" aria-live="polite"></p>
+        <noscript><p class="booking-empty">Para escolher data e horário, ative o JavaScript. Você também pode <a href="https://wa.me/5562998634371">falar diretamente com a equipe pelo WhatsApp</a>.</p></noscript>
+      </div>
+
+      <aside class="booking-summary" aria-labelledby="summary-title">
+        <p class="booking-kicker">Sua solicitação</p>
+        <h2 id="summary-title">Resumo</h2>
+        <div id="summary-services" class="summary-services"><p>Informe o serviço desejado para começar.</p></div>
+        <dl class="summary-meta">
+          <div><dt>Data</dt><dd id="summary-date">A escolher</dd></div>
+          <div><dt>Horário</dt><dd id="summary-time">A escolher</dd></div>
+          <div><dt>Duração estimada</dt><dd id="summary-duration">—</dd></div>
+          <div id="summary-price-row" hidden><dt>Valor</dt><dd id="summary-price"></dd></div>
+        </dl>
+        <p>Data, horário e valores são confirmados pela equipe.</p>
+      </aside>
+    </div>
+  </main>
+  <div class="mobile-summary" aria-live="polite"><span id="mobile-summary-text">Informe o serviço desejado</span><strong id="mobile-summary-value"></strong></div>
+  <footer class="booking-footer"><div class="wrap"><span>© <span id="booking-year">2026</span> Studio JL Beauty&Co.</span><a href="index.html">Voltar ao site ↗</a></div></footer>
+</body>
+</html>

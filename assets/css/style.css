@@ -119,3 +119,91 @@
 .site-footer{background:var(--bg)}
 @media(max-width:1000px){.contact-layout{gap:48px}}
 @media(max-width:700px){.contact-layout{grid-template-columns:1fr;gap:44px}}
+
+/* Typography and editorial layouts shared by the home sections. */
+.hero h1 span, .hero h1 em { display: block; }
+.hero h1 { line-height: .98; }
+.hero .lead, .section-description, .service p, .about-copy p,
+.contact-invite > p, .contact-details p, .contact-details address { font-size: 16px; }
+.hero .lead { max-width: 36ch; }
+.hero-media figcaption span:first-child { text-transform: uppercase; font-size: 11px; }
+.btn, .hero-explore, .text-link, .header-book, .phone { font-size: 14px; }
+.section-head h2 { max-width: 15ch; text-wrap: balance; }
+.section-description { max-width: 38ch; }
+.service h3 { margin-top: 6px; }
+.service p { max-width: 40ch; }
+.service ul { padding: 0; margin-top: 24px; list-style: none; }
+.service li { border-bottom: 1px solid var(--line); }
+.service li a { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 12px; padding: 14px 0; text-decoration: none; }
+.service li small { grid-column: 1 / -1; font-size: 14px; color: var(--muted); }
+.service li a:hover strong, .site-footer a:hover { text-decoration: underline; }
+.note { font-size: 13px; }
+.lookbook { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: clamp(14px,2vw,30px); }
+.look:nth-child(even) { margin-top: 44px; }
+.look-preview { display: block; overflow: hidden; position: relative; }
+.look-preview img { aspect-ratio: 3 / 4; object-fit: cover; transition: transform .45s ease; }
+.look-preview span { position: absolute; right: 10px; bottom: 10px; display: grid; place-items: center; width: 36px; height: 36px; color: white; background: #292c27cc; }
+.look figcaption { padding: 16px 0; }
+.look h3 { font-size: clamp(25px,2.4vw,38px); }
+.look p { margin-top: 8px; font-size: 14px; color: var(--muted); }
+.look .text-link { margin-top: 4px; }
+#look-dialog { background: var(--bg); color: var(--ink); border: 0; padding: 14px clamp(16px,3vw,42px) 30px; width: min(900px,94vw); max-height: 92dvh; overflow: auto; }
+#look-dialog::backdrop { background: rgb(22 23 19 / 82%); }
+body:has(#look-dialog[open]) { overflow: hidden; }
+.dialog-bar, .look-nav { display: flex; gap: 10px; }
+.dialog-bar { justify-content: flex-end; }
+#look-dialog button { cursor: pointer; background: transparent; color: var(--ink); border: 0; text-decoration: underline; min-height: 44px; }
+.look-detail { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 30px; }
+.look-detail img { height: min(62vh,580px); object-fit: contain; background: var(--paper); }
+.look-story h2 { margin-block: 12px; }
+.faq { display: grid; grid-template-columns: .8fr 1.2fr; gap: 48px; padding-block: 76px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { padding: 17px 0; font-weight: 600; cursor: pointer; font-size: 16px; }
+.faq p { padding: 0 0 18px; color: var(--muted); font-size: 15px; }
+.contact-details iframe { display: block; width: 100%; height: 215px; border: 0; margin: 20px 0 28px; background: var(--paper); }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.site-footer nav a { padding-block: 10px; }
+.mobile-book { display: none; }
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+  .look-preview:hover img { transform: scale(1.045); }
+}
+@media (prefers-reduced-motion:no-preference) {
+  @keyframes jl-title { from { opacity: 0; transform: translateY(12px); clip-path: inset(0 0 100%); } to { opacity: 1; transform: none; clip-path: inset(-20%); } }
+  @keyframes jl-photo { from { opacity: .6; } to { opacity: 1; } }
+  .hero h1 span, .hero h1 em { animation: jl-title .62s both; }
+  .hero h1 em { animation-delay: .09s; }
+  .hero-media, #look-dialog[open] { animation: jl-photo .4s ease-out; }
+}
+@media (max-width: 700px) {
+  .hero { padding-block: 26px 42px; gap: 16px; }
+  .hero-copy, .section-head, .about h2, .about .eyebrow, .contact-invite, .faq h2 { text-align: center; }
+  .hero .eyebrow { margin-bottom: 14px; font-size: 10px; }
+  .hero h1 { font-size: clamp(52px,13vw,76px); margin-bottom: 14px; }
+  .hero .lead, .section-description, .section-head h2, .contact-invite p { margin-inline: auto; }
+  .hero .btn { margin-top: 18px; }
+  .hero-explore { margin-inline: auto; margin-top: 2px; }
+  .hero-media { aspect-ratio: 4/4.3; }
+  .hero-media img { object-position: center 44%; }
+  .service { padding-left: 0; }
+  .section-head h2, .about h2, .contact-invite h2, .faq h2 { font-size: clamp(38px,10vw,52px); text-wrap: balance; }
+  .lookbook { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 12px; }
+  .look { flex: 0 0 82%; scroll-snap-align: start; }
+  .look:nth-child(even) { margin-top: 0; }
+  .look-detail { grid-template-columns: 1fr; gap: 6px; }
+  .look-detail img { height: min(40dvh,340px); }
+  .look-story .btn, .look-story .note { margin-top: 12px; }
+  .faq { grid-template-columns: 1fr; gap: 18px; padding-block: 48px; }
+  .contact-invite > p:not(.eyebrow) { font-size: 16px; }
+  .site-footer { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
+  .mobile-book { display: flex; position: fixed; bottom: max(12px,env(safe-area-inset-bottom)); left: 20px; right: 20px; justify-content: center; gap: 16px; margin: 0; z-index: 12; box-shadow: 0 3px 18px #282a2630; }
+}
+.studio-extra { padding-block: 60px; }
+.studio-extra > p, .extra-grid { margin-top: 24px; }
+.extra-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,270px),1fr)); gap: 28px; }
+.extra-grid h3 { font-size: 32px; margin-block: 16px; }
+.extra-grid .text-link { display: flex; width: fit-content; }
+.extra-grid input[type=range] { width: 100%; accent-color: var(--accent); min-height: 44px; }
+.comparison { position: relative; aspect-ratio: 4/5; }
+.comparison img { position: absolute; inset: 0; height: 100%; object-fit: cover; }
+.comparison img:last-child { clip-path: inset(0 calc(100% - var(--split,50%)) 0 0); }
+@media (max-width:700px) { .studio-extra > h2, .studio-extra > p { text-align: center; } }

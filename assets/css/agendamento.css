@@ -86,3 +86,24 @@
 @media(max-width:390px){.booking-back{font-size:10px}.booking-header .brand{font-size:22px}.service-option-copy strong{font-size:20px}.calendar-days button{min-height:36px}.booking-actions-final>div{display:grid;justify-items:end;gap:4px}}
 @media(max-width:700px){.booking-steps li button{font-size:9px;white-space:normal;line-height:1.2}.booking-steps li span{display:block;margin-bottom:4px}}
 @media(prefers-reduced-motion:reduce){.service-option{transition:none}}
+
+.booking-help, .booking-intro > p:last-child { font-size: 16px; }
+.flex-choice { display: block; border: 1px solid var(--accent); background: var(--paper); color: var(--ink); padding: 12px 18px; margin-bottom: 16px; cursor: pointer; }
+.booking-back, .booking-previous { gap: 6px; }
+.booking-footer svg, .calendar-nav svg { vertical-align: middle; }
+.booking-fields input, .booking-fields textarea { font-size: 16px; }
+#selected-look { padding: 12px 16px; background: var(--paper); border-inline-start: 2px solid var(--accent); }
+@media (max-width:700px) {
+  .booking-intro { text-align: center; }
+  .booking-intro h1 { font-size: clamp(50px,12vw,72px); }
+  .booking-intro > p { margin-inline: auto; }
+  .booking-steps li button { font-size: 11px; }
+  .booking-fields label, .booking-next, .booking-previous { font-size: 14px; }
+  .mobile-summary { padding-bottom: max(12px,env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion:no-preference) {
+  .booking-panel:not([hidden]) { animation: jl-photo .23s ease-out; }
+  .service-option:has(input:checked) { transition: background-color .2s, border-color .2s; }
+}
+#professional-field { display: grid; gap: 8px; margin-bottom: 18px; }
+#professional { font: inherit; padding: 12px; }

@@ -13,7 +13,7 @@ Abra index.html no navegador para visualizar, ou sirva esta pasta em um servidor
 
 ## Composição
 
-Abertura com fotografia e agendamento; três grupos de serviços; galeria com três trabalhos; apresentação curta do studio; contato com endereço, horários e rota no Google Maps. Os botões de agendamento da página inicial abrem `agendamento.html`. O menu permanece acessível sem JavaScript.
+Abertura com fotografia e agendamento; nove serviços em três grupos; galeria de quatro trabalhos com ampliação; apresentação do Studio; perguntas frequentes; contato com mapa e rota. Os botões de agendamento da página inicial abrem `agendamento.html`. Os links de serviços e fotos usam servico e ref para preencher a seleção. A cliente pode informar data e horário específicos ou pedir a primeira disponibilidade. O menu permanece acessível sem JavaScript.
 
 Cada seção usa um tom discreto de fundo, em faixas de largura total, para orientar a leitura sem pesar o visual. Os fundos e divisórias ficam em `assets/css/style.css`.
 
@@ -26,6 +26,10 @@ Os dados editáveis ficam no topo de `assets/js/agendamento.js`, nos objetos `DE
 Para cada serviço, informe `id`, `nome`, `preco`, `tipoPreco` e `duracaoMin`. Os tipos são `fixo`, `aPartirDe` e `sobConsulta`; neste último caso, use `preco: null`. Use `duracaoMin: null` enquanto a duração não estiver confirmada. Com duração conhecida para todos os serviços escolhidos, o formulário evita sugestões que ultrapassem o expediente ou atravessem uma pausa.
 
 Os nove serviços exibidos vêm das categorias já descritas no site: coloração, mechas e loiros, morena iluminada, corte, tratamento capilar, retoque de raiz, Mega Hair, penteado e maquiagem. A pessoa pode selecionar vários. Enquanto a tabela comercial não for informada, todos aparecem com valor sob consulta e duração a confirmar. Os horários mostrados são **preferências**, não vagas em tempo real. Quando as durações forem informadas, o formulário passa a considerá-las nas sugestões.
+
+## Conteúdo complementar
+
+Cadastre conteúdo validado em `assets/js/studio.js`. As seções de antes e depois, equipe e avaliações aparecem quando recebem registros. Cada comparação exige duas fotografias autorizadas do mesmo atendimento e o ID do serviço. A preferência de profissional e a referência escolhida são incluídas na mensagem do WhatsApp.
 
 ## Reaproveitar para outro salão
 

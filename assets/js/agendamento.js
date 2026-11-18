@@ -49,7 +49,24 @@ const CONFIG = {
   const copyButton = $('copy-message');
   const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   const storageKey = 'studio-jl-booking-v2';
-  const state = { step: 0, selected: new Set(), date: null, time: null };
+  const state = { step: 0, selected: new Set(), date: null, time: null, flexibleDate: false, flexibleTime: false, reference: null };
+  const references = new Map([
+    ['avela', { name: 'Morena iluminada', service: 'morena-iluminada' }],
+    ['loiro', { name: 'Loiro', service: 'mechas-loiros' }],
+    ['cherry', { name: 'Cherry brown', service: 'coloracao' }],
+    ['mel', { name: 'Mel e caramelo', service: 'coloracao' }],
+  ]);
+  for (const item of studioContent.comparacoes) {
+    references.set('comparacao-' + item.nome, { name: item.nome, service: item.servico });
+  }
+  const professional = $('professional');
+  for (const item of studioContent.equipe) professional.add(new Option(item.nome, item.id));
+  $('professional-field').hidden = !studioContent.equipe.length;
+  professional.addEventListener('change', () => { render(); });
+  const selectedProfessional = () => studioContent.equipe.find(item => item.id === professional.value);
+  const selectedReference = () => references.get(state.reference);
+  const dateLabel = () => state.flexibleDate ? 'Primeiro dia disponível' : state.date ? prettyDate(state.date) : 'A escolher';
+  const timeLabel = () => state.flexibleTime ? 'Horário flexível' : state.time || 'A escolher';
   const hasService = () => state.selected.size > 0;
   const hasDuration = () => hasService() && selectedServices().every(service => Number.isFinite(service.duracaoMin) && service.duracaoMin > 0);
 
@@ -150,14 +167,19 @@ const CONFIG = {
   })();
 
   const maxUnlockedStep = () => !hasService() ? 0
+    : state.flexibleDate ? 3
     : !isSelectableDay(state.date) ? 1
-      : !availableSlots(state.date).includes(state.time) ? 2 : 3;
+      : !state.flexibleTime && !availableSlots(state.date).includes(state.time) ? 2 : 3;
 
   function saveDraft() {
     try {
       sessionStorage.setItem(storageKey, JSON.stringify({
         step: state.step,
         selected: [...state.selected],
+        reference: state.reference,
+        professional: professional.value,
+        flexibleDate: state.flexibleDate,
+        flexibleTime: state.flexibleTime,
         date: state.date,
         time: state.time,
         name: nameInput.value,
@@ -175,6 +197,10 @@ const CONFIG = {
       state.selected = new Set(Array.isArray(saved.selected) ? saved.selected.filter(id => validIds.has(id)) : []);
       state.date = typeof saved.date === 'string' && isSelectableDay(saved.date) ? saved.date : null;
       state.time = typeof saved.time === 'string' && availableSlots(state.date).includes(saved.time) ? saved.time : null;
+      state.flexibleDate = saved.flexibleDate === true;
+      state.flexibleTime = state.flexibleDate || saved.flexibleTime === true;
+      state.reference = state.selected.has(references.get(saved.reference)?.service) ? saved.reference : null;
+      professional.value = studioContent.equipe.some(item => item.id === saved.professional) ? saved.professional : '';
       if (state.date) [monthState.year, monthState.month] = dateParts(state.date);
       nameInput.value = typeof saved.name === 'string' ? saved.name.slice(0, 80) : '';
       phoneInput.value = typeof saved.phone === 'string' ? formatPhone(saved.phone) : '';
@@ -227,6 +253,7 @@ const CONFIG = {
       calendarDays.append(blank);
     }
     const count = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    const today = zonedNow().date;
     for (let day = 1; day <= count; day++) {
       const key = dateKey(year, month, day);
       const button = document.createElement('button');
@@ -235,7 +262,7 @@ const CONFIG = {
       button.textContent = String(day);
       button.setAttribute('aria-label', prettyDate(key));
       button.setAttribute('aria-pressed', String(state.date === key));
-      button.disabled = !isSelectableDay(key);
+      button.disabled = !isSelectableDay(key) || (key === today && availableSlots(key).length === 0);
       calendarDays.append(button);
     }
     const now = zonedNow().date;
@@ -284,8 +311,8 @@ const CONFIG = {
       empty.textContent = 'Escolha seus serviços para começar.';
       summary.append(empty);
     }
-    $('summary-date').textContent = state.date ? prettyDate(state.date) : 'A escolher';
-    $('summary-time').textContent = state.time || 'A escolher';
+    $('summary-date').textContent = dateLabel();
+    $('summary-time').textContent = timeLabel();
     $('summary-duration').textContent = hasDuration() ? durationText(totalDuration()) : 'A confirmar';
     $('summary-price-row').hidden = !totalPrice();
     $('summary-price').textContent = totalPrice();
@@ -303,8 +330,10 @@ const CONFIG = {
     review.append(heading);
     const rows = [
       selectedServices().map(service => service.nome).join(' · '),
-      state.date ? prettyDate(state.date) : '',
-      state.time ? `${state.time}${hasDuration() ? ` · duração estimada de ${durationText(totalDuration())}` : ' · horário de preferência'}` : '',
+      selectedReference()?.name ? 'Referência: ' + selectedReference().name : '',
+      selectedProfessional()?.nome,
+      dateLabel(),
+      state.time ? `${state.time}${hasDuration() ? ` · duração estimada de ${durationText(totalDuration())}` : ' · horário de preferência'}` : timeLabel(),
       totalPrice() ? `Valor: ${totalPrice()}` : 'Valor e duração a confirmar',
     ];
     for (const text of rows.filter(Boolean)) {
@@ -327,25 +356,27 @@ const CONFIG = {
 
   function messageText() {
     const lines = [
-      `Olá! Gostaria de solicitar um agendamento no ${CONFIG.empresa}:`,
+      'Oi, Studio JL! Gostaria de solicitar um horário.',
       '',
-      `👤 Nome: ${nameInput.value.trim()}`,
-      `📱 Telefone: ${phoneInput.value.trim()}`,
-      `📅 Data: ${prettyDate(state.date)}`,
-      `🕐 Horário de preferência: ${state.time}${hasDuration() ? ` (duração estimada: ${durationText(totalDuration())})` : ''}`,
+      `Nome: ${nameInput.value.trim()}`,
+      `Telefone: ${phoneInput.value.trim()}`,
+      `Data de preferência: ${dateLabel()}`,
+      `Horário de preferência: ${timeLabel()}${hasDuration() ? ` (duração estimada: ${durationText(totalDuration())})` : ''}`,
       '',
-      '✂️ Serviços desejados:',
+      'Serviços desejados:',
       ...selectedServices().map(service => `• ${service.nome}: ${servicePrice(service)}`),
     ];
-    if (totalPrice()) lines.push('', `💰 Total indicado: ${totalPrice()}`);
-    if (noteInput.value.trim()) lines.push('', `📝 Observação: ${noteInput.value.trim()}`);
-    lines.push('', 'Aguardo a confirmação de disponibilidade e valores pela equipe.');
+    if (selectedProfessional()) lines.push('Preferência de profissional: ' + selectedProfessional().nome);
+    if (selectedReference()) lines.push(`Referência do site: ${selectedReference().name}`);
+    if (totalPrice()) lines.push('', `Total indicado: ${totalPrice()}`);
+    if (noteInput.value.trim()) lines.push('', `Observação: ${noteInput.value.trim()}`);
+    lines.push('', 'Vocês conseguem confirmar a disponibilidade e me orientar sobre o valor e a duração? Agradeço!');
     return lines.join('\n');
   }
 
   function validBooking() {
     return hasService()
-      && isSelectableDay(state.date) && availableSlots(state.date).includes(state.time)
+      && maxUnlockedStep() === 3
       && validName() && validPhone();
   }
 
@@ -365,6 +396,9 @@ const CONFIG = {
   function render() {
     renderCalendar();
     renderSlots();
+    const reference = selectedReference();
+    $('selected-look').hidden = !reference;
+    $('selected-look').textContent = reference ? `Referência escolhida: ${reference.name}. Você pode alterar ou adicionar serviços.` : '';
     renderSummary();
     renderReview();
     updateSendLink();
@@ -385,7 +419,20 @@ const CONFIG = {
     saveDraft();
   }
 
+  $('flexible-date').addEventListener('click', () => {
+    state.date = null;
+    state.time = null;
+    state.flexibleDate = true;
+    state.flexibleTime = true;
+    changeStep(3);
+  });
+  $('flexible-time').addEventListener('click', () => {
+    state.time = null;
+    state.flexibleTime = true;
+    changeStep(3);
+  });
   function changeStep(next) {
+    if (next === 2 && state.flexibleDate) next = 1;
     if (next < 0 || next >= panels.length) return;
     state.step = next;
     setFeedback('');
@@ -404,6 +451,7 @@ const CONFIG = {
     if (!event.target.matches('input[type="checkbox"]')) return;
     if (event.target.checked) state.selected.add(event.target.value);
     else state.selected.delete(event.target.value);
+    if (!state.selected.has(selectedReference()?.service)) state.reference = null;
     const hadTime = Boolean(state.time);
     if (state.time && !availableSlots(state.date).includes(state.time)) state.time = null;
     setFeedback(hadTime && !state.time ? 'Os serviços mudaram. Escolha outro horário.' : '');
@@ -412,6 +460,8 @@ const CONFIG = {
   calendarDays.addEventListener('click', event => {
     const button = event.target.closest('button[data-date]');
     if (!button || button.disabled) return;
+    state.flexibleDate = false;
+    state.flexibleTime = false;
     state.date = button.dataset.date;
     state.time = null;
     setFeedback('');
@@ -445,6 +495,7 @@ const CONFIG = {
   slotsContainer.addEventListener('click', event => {
     const button = event.target.closest('button[data-time]');
     if (!button) return;
+    state.flexibleTime = false;
     state.time = button.dataset.time;
     setFeedback('');
     render();
@@ -462,6 +513,16 @@ const CONFIG = {
     updateSendLink();
     saveDraft();
   });
+  for (const [field, valid, hint] of [[nameInput, validName, 'Informe seu nome completo.'], [phoneInput, validPhone, 'Digite seu número de celular com DDD.']]) {
+    field.addEventListener('blur', () => {
+      field.setAttribute('aria-invalid', String(!valid()));
+      setFeedback(valid() ? '' : hint);
+    });
+    field.addEventListener('input', () => {
+      field.removeAttribute('aria-invalid');
+      setFeedback('');
+    });
+  }
   nameInput.addEventListener('input', () => { updateSendLink(); saveDraft(); });
   noteInput.addEventListener('input', () => { updateSendLink(); saveDraft(); });
   copyButton.addEventListener('click', async () => {
@@ -477,7 +538,7 @@ const CONFIG = {
       temporary.remove();
       if (!copied) return setFeedback('Não foi possível copiar. Use o botão de WhatsApp.');
     }
-    setFeedback('Mensagem copiada.');
+    setFeedback('Mensagem copiada. Abra o WhatsApp e cole na conversa com o Studio.');
   });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
   $('booking-year').textContent = new Date().getFullYear();
@@ -488,6 +549,27 @@ const CONFIG = {
     }
   }
   restoreDraft();
+  const entry = new URL(location.href);
+  const professionalId = entry.searchParams.get('profissional');
+  if (studioContent.equipe.some(item => item.id === professionalId)) {
+    professional.value = professionalId;
+    state.step = 0;
+    entry.searchParams.delete('profissional');
+    history.replaceState(null, '', entry);
+  }
+  const serviceId = entry.searchParams.get('servico');
+  if (CONFIG.servicos.some(service => service.id === serviceId)) {
+    state.selected.add(serviceId);
+    state.step = 0;
+    const reference = entry.searchParams.has('comparacao')
+      ? 'comparacao-' + entry.searchParams.get('comparacao') : entry.searchParams.get('ref');
+    entry.searchParams.delete('comparacao');
+    state.reference = references.get(reference)?.service === serviceId ? reference : null;
+    if (state.time && !availableSlots(state.date).includes(state.time)) state.time = null;
+    entry.searchParams.delete('servico');
+    entry.searchParams.delete('ref');
+    history.replaceState(null, '', entry);
+  }
   renderServices();
   render();
 })();

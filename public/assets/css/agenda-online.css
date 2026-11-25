@@ -1,0 +1,15 @@
+.booking-fields select, .agenda-input { min-height: 48px; width: 100%; background: #faf8f3; border: 1px solid var(--line); padding: 10px 12px; color: var(--ink); font: 16px var(--text); }
+.agenda-slot { display: grid; gap: 4px; text-align: left; padding: 12px; min-height: 55px; border: 1px solid var(--line); background: #faf8f3; color: var(--ink); font: 13px var(--text); cursor: pointer; overflow-wrap: anywhere; }
+.agenda-slot span { font-size: 11px; }
+.agenda-slot[aria-pressed=true], .service-option[aria-pressed=true] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); background: #e8e1d7; }
+.booking-feedback:not(:empty) { margin: 14px 0; }
+.agenda-stack { display: grid; gap: 24px; }
+.agenda-card { padding: clamp(14px, 4vw, 28px); border: 1px solid var(--line); background: #faf8f3; }
+.agenda-card h2, .agenda-card h3 { margin-bottom: 14px; }
+.agenda-card p, .booking-summary p { margin: 8px 0; }
+.agenda-card form, .agenda-card .agenda-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.agenda-card label { display: grid; gap: 4px; flex: 1 0 155px; min-width: 0; }
+.agenda-row { padding: 12px 0; border-top: 1px solid var(--line); }
+.agenda-row > p { flex-basis: 100%; }
+.booking-panel[data-panel="4"] a { margin-top: 12px; }
+@media (max-width: 440px) { .time-slots { grid-template-columns: repeat(2, minmax(0,1fr)); } }

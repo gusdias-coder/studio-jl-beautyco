@@ -1,0 +1,23 @@
+{
+  "name": "studio-jl-beautyco",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "db:local": "wrangler d1 migrations apply studio-jl-agenda --local",
+    "db:remote": "wrangler d1 migrations apply studio-jl-agenda --remote",
+    "deploy": "wrangler deploy",
+    "test": "node scripts/smoke.mjs",
+    "deploy:cloudflare": "node scripts/deploy.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "jose": "^6.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "4.168.0"
+  }
+}

@@ -1,57 +1,50 @@
-# Studio JL — modelo de salão premium
+# Studio JL BeautyCo
 
-Site estático em HTML, CSS e JavaScript, sem compilação ou bibliotecas de interface.
-Abra index.html no navegador para visualizar, ou sirva esta pasta em um servidor local.
+Demonstração de agenda de um salão fictício. A página usa o visual do Studio JL, e a agenda usa Cloudflare Workers, Hono e D1. Serviços, preços, profissionais e reservas da demonstração são fictícios. O formulário gera uma identidade de teste no próprio navegador.
 
-## Estrutura
+## Regras da agenda
 
-- index.html: conteúdo, links, metadados e dados estruturados.
-- assets/css/style.css: identidade visual, componentes e layouts responsivos.
-- assets/js/main.js: menu para celular e atualização do ano.
-- agendamento.html, assets/css/agendamento.css e assets/js/agendamento.js: solicitação de agendamento em quatro etapas.
-- assets/img/: quatro fotografias em WebP, armazenadas localmente.
+| Regra | Valor |
+|---|---|
+| Expediente | Terça a sábado, 9h às 12h e 13h às 18h |
+| Fuso | America/Sao_Paulo |
+| Inícios | A cada 30 minutos |
+| Antecedência | Entre 2 horas e 60 dias |
+| Reserva | Confirmação instantânea, um serviço por reserva |
+| Cancelamento pela cliente | Até 12 horas antes, pelo link da reserva |
+| Limite | Três reservas futuras por identidade de teste |
 
-## Composição
+Os nove serviços e as três profissionais estão em `migrations/0002_demo.sql`. Mega Hair começa com uma avaliação de 30 minutos. O painel permite editar preço e duração, bloquear horários, remarcar e cancelar.
 
-Abertura com fotografia e agendamento; nove serviços em três grupos; galeria de quatro trabalhos com ampliação; apresentação do Studio; perguntas frequentes; contato com mapa e rota. Os botões de agendamento da página inicial abrem `agendamento.html`. Os links de serviços e fotos usam servico e ref para preencher a seleção. A cliente pode informar data e horário específicos ou pedir a primeira disponibilidade. O menu permanece acessível sem JavaScript.
+## Rodar localmente
 
-Cada seção usa um tom discreto de fundo, em faixas de largura total, para orientar a leitura sem pesar o visual. Os fundos e divisórias ficam em `assets/css/style.css`.
+Use Node.js 22 ou superior. Na raiz:
 
-## Solicitação de agendamento
+```sh
+npm ci
+npm run db:local
+npm run dev
+```
 
-O formulário em `agendamento.html` roda no navegador e prepara uma mensagem para o WhatsApp. Ele não consulta ocupação em tempo real: a equipe confirma a disponibilidade, os valores e a duração final. O botão de envio é um link aberto pelo clique da pessoa; há também a opção de copiar a mensagem. Os botões numerados permitem voltar a qualquer etapa já liberada. O rascunho é guardado em `sessionStorage` e restaurado ao voltar ao formulário na mesma aba; ele é descartado quando a aba é fechada.
+Abra `http://localhost:8787`. A API de saúde está em `/api/status`, e o painel em `/admin/`. Para habilitar o painel local, crie `.dev.vars` com `ADMIN_KEY` e um valor hexadecimal aleatório de 64 caracteres. A chave fica fora do Git. Com o servidor em execução, rode `npm test` em outro terminal para verificar o fluxo completo. O teste cria e cancela reservas fictícias.
 
-Os dados editáveis ficam no topo de `assets/js/agendamento.js`, nos objetos `DEFAULT_SERVICES` e `CONFIG`: serviços, nome, WhatsApp, fuso horário, antecedência mínima, janela de datas, expediente por dia e dias e horários bloqueados. `funcionamento` usa 0 para domingo e 6 para sábado. Cada dia aceita vários períodos, por exemplo `[{ inicio: '09:00', fim: '12:00' }, { inicio: '13:00', fim: '18:00' }]`. Os horários bloqueados são slots de 30 minutos; qualquer serviço que se sobreponha a um deles deixa de ser sugerido.
+## Publicar na Cloudflare
 
-Para cada serviço, informe `id`, `nome`, `preco`, `tipoPreco` e `duracaoMin`. Os tipos são `fixo`, `aPartirDe` e `sobConsulta`; neste último caso, use `preco: null`. Use `duracaoMin: null` enquanto a duração não estiver confirmada. Com duração conhecida para todos os serviços escolhidos, o formulário evita sugestões que ultrapassem o expediente ou atravessem uma pausa.
+1. Conecte o Wrangler à conta com `npx wrangler login --device` ou use um token de automação autorizado no ambiente.
+2. Selecione a conta com a variável `CLOUDFLARE_ACCOUNT_ID` quando houver mais de uma. Verifique se a conta está no plano esperado.
+3. Execute `npm run deploy:cloudflare`. O script reutiliza ou cria o D1, aplica as migrações remotas e publica o Worker com os arquivos estáticos.
+4. Para habilitar o painel, defina `ADMIN_KEY` como segredo no painel da Cloudflare ou com `wrangler secret put ADMIN_KEY`. Use uma chave aleatória de 64 caracteres hexadecimais. O deploy automatizado também aceita um arquivo de segredos fora do projeto pela variável `AGENDA_SECRETS_FILE`. Se usar Cloudflare Access, defina `ACCESS_TEAM` e `ACCESS_AUD` e configure a política de acesso a `/admin/*` e `/api/admin/*`; o Worker valida a assinatura e o público do token.
+5. Para habilitar Turnstile, configure `TURNSTILE_SITE_KEY` como variável e `TURNSTILE_SECRET` como segredo. A demonstração sem widget aplica limite de tentativas por origem e por identidade de teste.
+6. Verifique a home, `/api/status`, uma reserva de teste e a rejeição de acesso ao painel sem credencial.
 
-Os nove serviços exibidos vêm das categorias já descritas no site: coloração, mechas e loiros, morena iluminada, corte, tratamento capilar, retoque de raiz, Mega Hair, penteado e maquiagem. A pessoa pode selecionar vários. Enquanto a tabela comercial não for informada, todos aparecem com valor sob consulta e duração a confirmar. Os horários mostrados são **preferências**, não vagas em tempo real. Quando as durações forem informadas, o formulário passa a considerá-las nas sugestões.
+O ID em `wrangler.toml` é exclusivo para desenvolvimento local. O script gera a configuração remota durante a publicação. Para operar o D1 por linha de comando depois, passe o nome do banco remoto e selecione a conta certa. Configure o subdomínio workers.dev no painel se a conta ainda não tiver um.
 
-## Conteúdo complementar
+## Como funciona
 
-Cadastre conteúdo validado em `assets/js/studio.js`. As seções de antes e depois, equipe e avaliações aparecem quando recebem registros. Cada comparação exige duas fotografias autorizadas do mesmo atendimento e o ID do serviço. A preferência de profissional e a referência escolhida são incluídas na mensagem do WhatsApp.
+- `public/` contém o site, o fluxo de reserva, a consulta da cliente e o painel.
+- `src/agenda.js` traduz o expediente em horários disponíveis. O tempo bloqueado arredonda a duração para blocos de meia hora.
+- `src/index.js` contém as rotas e as operações de reserva. O preço e a duração vêm do D1. Gatilhos SQLite rejeitam sobreposição com outra reserva ou folga durante a mesma gravação. O link da cliente guarda um token, cujo hash fica no banco.
+- `public/_headers` aplica controles de segurança às páginas e mantém a demonstração fora da indexação.
+- `migrations/` guarda o esquema e os dados de teste. O cron remove reservas e bloqueios antigos após 30 dias e registros de auditoria após 90 dias.
 
-## Reaproveitar para outro salão
-
-1. Troque a marca, serviços e textos no HTML.
-2. Substitua telefone em todos os links wa.me, no link tel, no texto visível e no JSON-LD. O JavaScript não define telefone nem redireciona links.
-3. Troque cidade, endereço, horários e os destinos do Instagram e Google Maps.
-4. Substitua as quatro fotografias e suas descrições. As imagens desta versão pertencem ao material do Studio JL e não devem apresentar os trabalhos de outro negócio.
-5. Atualize title, description, canonical, Open Graph e JSON-LD para o domínio e os dados do novo negócio.
-6. Ajuste as cores e fontes no :root do CSS.
-
-## Origem dos dados
-
-Dados de Goiânia e fotografias foram reaproveitados da versão pública em https://gusdias-coder.github.io/studio-jl-beautyco/. A referência recebida menciona outro salão em Porto Alegre; esses dados não foram misturados. A segunda-feira aparece como horário de agendamentos, conforme a fonte original, e não consta como abertura no JSON-LD. Confirme os dados comerciais ao adaptar o modelo.
-
-## Acessibilidade e desempenho
-
-Link para pular ao conteúdo, foco visível, estrutura semântica, descrições de imagens, menu com aria-expanded e fechamento por Escape, suporte a movimento reduzido e conteúdo visível sem JavaScript. Fotografias WebP locais, dimensões reservadas e carregamento adiado da galeria. Fontes externas têm alternativas locais de sistema.
-
-## Publicação
-
-A pasta do site contém os arquivos que devem ir à raiz do repositório gusdias-coder/studio-jl-beautyco. O GitHub Pages já publica a branch main. Pré-visualizações e scripts temporários de verificação não fazem parte do deploy.
-
-## Verificações
-
-Layout e imagens verificados em 1440, 390 e 320 pixels, sem rolagem horizontal. Menu móvel verificado por abertura e Escape. Antes de adaptar para outro negócio, confira novamente os links de contato, descrições, serviços e metadados.
+Antes de alterar o esquema remoto, exporte uma cópia com `npx wrangler d1 export studio-jl-agenda --remote --output agenda.backup.sql`. Guarde a cópia fora do Git e faça a restauração em um banco descartável para verificar a integridade. O rollback de uma versão do Worker não desfaz uma migração do banco.

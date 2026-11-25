@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f4f0e9"><meta name="robots" content="noindex,nofollow">
+  <title>Agendar horário | Studio JL Beauty&Co.</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/agendamento.css">
+  <link rel="stylesheet" href="/assets/css/agenda-online.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script type="module" src="/assets/js/agendamento.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <header class="booking-header"><div class="wrap booking-header-inner">
+    <a class="brand" href="/">STUDIO JL<span>BEAUTY &amp; CO.</span></a><a class="booking-back" href="/">Voltar ao site</a>
+  </div></header>
+  <main id="conteudo" class="booking-main wrap">
+    <div class="booking-intro">
+      <p class="eyebrow">Studio JL Beauty&Co. · Salão fictício</p>
+      <h1>Encontre seu <em>horário</em></h1>
+      <p>Escolha um serviço e teste uma reserva na agenda. O site gera um código fictício para você.</p>
+    </div>
+    <div class="booking-layout">
+      <div class="booking-flow">
+        <ol class="booking-steps" aria-label="Etapas do agendamento">
+          <li aria-current="step"><button type="button" data-step="0" aria-label="Etapa 1: Serviço"><span>01</span> Serviço</button></li>
+          <li><button type="button" data-step="1" aria-label="Etapa 2: Data" disabled><span>02</span> Data</button></li>
+          <li><button type="button" data-step="2" aria-label="Etapa 3: Horário" disabled><span>03</span> Horário</button></li>
+          <li><button type="button" data-step="3" aria-label="Etapa 4: Confirmar" disabled><span>04</span> Confirmar</button></li>
+        </ol>
+        <section class="booking-panel" data-panel="0" aria-labelledby="services-title">
+          <h2 id="services-title" tabindex="-1">Escolha um serviço</h2>
+          <p id="look" class="booking-help" hidden></p>
+          <div id="services" class="service-options" role="group" aria-label="Serviços"></div>
+          <div class="booking-actions"><button id="choose-date" type="button" class="booking-next" disabled>Escolher data</button></div>
+        </section>
+        <section class="booking-panel" data-panel="1" aria-labelledby="date-title" hidden>
+          <h2 id="date-title" tabindex="-1">Qual dia funciona para você?</h2>
+          <p class="booking-help">Atendimentos de terça a sábado, das 9h às 12h e das 13h às 18h.</p>
+          <form id="date-form" class="booking-fields">
+            <label for="day">Data</label><input id="day" type="date" required>
+            <label for="professional">Profissional</label><select id="professional"></select>
+            <div class="booking-actions"><button type="button" class="booking-previous" data-back="0">Voltar</button>
+              <button class="booking-next">Ver horários</button></div>
+          </form>
+        </section>
+        <section class="booking-panel" data-panel="2" aria-labelledby="time-title" hidden>
+          <h2 id="time-title" tabindex="-1">Escolha um horário</h2>
+          <p class="booking-help" id="date-label"></p>
+          <div id="slots" class="time-slots" role="group" aria-label="Horários disponíveis"></div>
+          <div class="booking-actions"><button type="button" class="booking-previous" data-back="1">Mudar data</button>
+            <button id="review" type="button" class="booking-next" disabled>Revisar reserva</button></div>
+        </section>
+        <section class="booking-panel" data-panel="3" aria-labelledby="review-title" hidden>
+          <h2 id="review-title" tabindex="-1">Confira sua reserva</h2>
+          <div class="final-review" id="review-details"></div>
+          <form id="reserve" class="booking-fields">
+            <p class="booking-help">Esta reserva é de demonstração. Você pode cancelá-la pelo link de gerenciamento até 12 horas antes.</p>
+            <div id="challenge"></div>
+            <div class="booking-actions"><button type="button" class="booking-previous" data-back="2">Voltar</button>
+              <button class="booking-next" id="confirm">Confirmar reserva de teste</button></div>
+          </form>
+        </section>
+        <section class="booking-panel" data-panel="4" aria-labelledby="confirmed-title" hidden>
+          <h2 id="confirmed-title" tabindex="-1">Reserva confirmada</h2>
+          <div class="final-review" id="confirmed-details"></div>
+          <p class="booking-help">Guarde o link para consultar ou cancelar sua reserva de teste.</p>
+          <a class="booking-next" id="manage" href="/minha-reserva.html">Gerenciar minha reserva</a>
+        </section>
+        <p id="feedback" class="booking-feedback" role="status" aria-live="polite"></p>
+        <button id="retry" class="booking-previous" type="button" hidden>Tentar novamente</button>
+        <noscript><p>Ative o JavaScript para testar a agenda.</p></noscript>
+      </div>
+      <aside class="booking-summary" aria-labelledby="summary-title">
+        <p class="booking-kicker">Sua reserva</p><h2 id="summary-title">Resumo</h2>
+        <div id="summary"></div>
+        <p>Valores de demonstração em reais. Nenhum pagamento será solicitado.</p>
+      </aside>
+    </div>
+  </main>
+  <footer class="booking-footer"><div class="wrap"><span>Studio JL Beauty&Co. · Demonstração</span><a href="/admin/">Área da equipe</a></div></footer>
+</body>
+</html>

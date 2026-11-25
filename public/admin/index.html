@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Painel da equipe | Studio JL</title>
+<link rel="stylesheet" href="/assets/css/style.css"><link rel="stylesheet" href="/assets/css/agendamento.css">
+<link rel="stylesheet" href="/assets/css/agenda-online.css"><script type="module" src="/assets/js/admin.js"></script>
+</head><body><header class="booking-header"><div class="wrap booking-header-inner">
+<a class="brand" href="/">STUDIO JL<span>BEAUTY &amp; CO.</span></a><a class="booking-back" href="/">Voltar ao site</a></div></header>
+<main class="booking-main wrap"><div class="booking-intro"><p class="eyebrow">Studio JL Beauty&Co. · Demonstração</p><h1>Agenda da <em>equipe</em></h1></div>
+
+<section class="agenda-card" id="login" aria-labelledby="login-title">
+  <h2 id="login-title">Acesso da equipe</h2>
+  <form id="login-form">
+    <label>Chave de acesso<input class="agenda-input" autocomplete="current-password" id="key" type="password" required></label>
+    <button class="booking-next">Entrar</button>
+  </form>
+</section>
+<div class="agenda-stack" id="workspace" hidden>
+  <section class="agenda-card" aria-labelledby="schedule-title">
+    <h2 id="schedule-title">Reservas do dia</h2>
+    <form id="filter">
+      <label>Data<input class="agenda-input" id="day" type="date" required></label>
+      <button class="booking-next">Consultar</button><button class="booking-previous" id="logout" type="button">Sair do painel</button>
+    </form>
+    <div id="bookings"></div>
+  </section>
+  <section class="agenda-card" aria-labelledby="blocks-title">
+    <h2 id="blocks-title">Bloqueios e folgas</h2>
+    <form id="block">
+      <label>Profissional<select class="agenda-input" id="block-person"></select></label>
+      <label>Início<input class="agenda-input" id="block-start" type="datetime-local" required></label>
+      <label>Fim<input class="agenda-input" id="block-end" type="datetime-local" required></label>
+      <button class="booking-next">Bloquear horário</button>
+    </form>
+    <div id="blocks"></div>
+  </section>
+  <section class="agenda-card" aria-labelledby="catalog-title">
+    <h2 id="catalog-title">Serviços e valores</h2>
+    <form id="catalog-form">
+      <label>Serviço<select class="agenda-input" id="catalog"></select></label>
+      <label>Duração em minutos<input class="agenda-input" id="duration" type="number" min="15" max="480" required></label>
+      <label>Valor em reais<input class="agenda-input" id="price" type="number" min="0" max="100000" step="0.01"></label>
+      <button class="booking-next">Salvar serviço</button>
+    </form>
+  </section>
+</div>
+<p id="feedback" class="booking-feedback" role="status" aria-live="polite"></p>
+</main></body></html>
